@@ -26,6 +26,13 @@ connectDB();
 // Middleware
 app.use(express.json());
 
+
+app.get("/", (req, res) => {
+  res.status(200).send("Task Manager API is running 🚀");
+}); 
+
+
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
