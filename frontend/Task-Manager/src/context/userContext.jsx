@@ -8,40 +8,45 @@ const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if(user) return;
+  const clearUser = () => {
+    setUser(null);
+    localStorage.removeItem("token");
+  };
 
-        const accessToken = localStorage.getItem("token");
-        if(!accessToken){
-            setLoading(false);
-            return;
-        }
+  const updateUser = (userData) => {
+    setUser(userData);
+  };
 
-        const fetchUserProfile = async () => {
-            try{
-                const response = await axiosInstance.get(API_PATHS.Auth.GET_PROFILE);
-                setUser(response.data);
-            } catch (error) {
-                console.error("User not Authenticated", error);
-                clearUser();
-            }finally{
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    if (user) return;
 
-        fetchUser();
-    }, []);
+    const accessToken = localStorage.getItem("token");
 
-    const updateUser = (userData) => {
-        setUser(userData);  
-        localStorage.removeItem("token");
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axiosInstance.get(API_PATHS.Auth.GET_PROFILE);
+        setUser(response.data);
+      } catch (error) {
+        console.error("User not Authenticated", error);
+        clearUser();
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return(
-        <UserContext.Provider value={{ user, loading, updateUser, clearUser }}>
-            {children}
-        </UserContext.Provider>
-    );
-}
+    fetchUserProfile();
+  }, []);
+
+  return (
+    <UserContext.Provider value={{ user, loading, updateUser, clearUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
 
 export default UserProvider;

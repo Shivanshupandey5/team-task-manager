@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import AuthLayout from '../../components/layouts/AuthLayout'
 import { useNavigate } from 'react-router-dom';
 import Input from '../../components/Inputs/Input';
@@ -7,6 +7,7 @@ import { validateEmail } from '../../utils/helper';
 import axios from 'axios';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
+import { UserContext } from '../../context/userContext';
 
 const Login = () => {
   const[email, setEmail] = useState('');
