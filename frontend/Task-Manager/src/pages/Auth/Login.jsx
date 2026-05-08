@@ -15,7 +15,6 @@ const Login = () => {
   const[error, setError] = useState(null);
 
   const{updateUser} = useContext(UserContext);
-
   const navigate = useNavigate();
 
   // Handle Login form submission
@@ -36,20 +35,23 @@ const Login = () => {
     //Login API Call 
 
     try{
-      const response = await axiosInstance.post(API_PATHS.Auth.LOGIN,{
-        email,
-        password
-      });
-      const { token, role } = response.data;
-      if(token){
-        localStorage.setItem("token", token);
-        updateUserRole(response.data);
-      
+        const response = await axiosInstance.post(API_PATHS.Auth.LOGIN, {
+          email,
+          password
+        });
 
-          //Redirect based on role
-          if(role === "Admin"){
+        console.log("LOGIN RESPONSE:", response.data);
+
+        const { token } = response.data;
+        const role = response.data.role;
+
+      if (token) {
+          localStorage.setItem("token", token);
+          updateUser(response.data);
+
+          if (role?.toLowerCase() === "admin") {
             navigate("/admin/dashboard");
-          }else{
+          } else {
             navigate("/user/dashboard");
           }
       }
