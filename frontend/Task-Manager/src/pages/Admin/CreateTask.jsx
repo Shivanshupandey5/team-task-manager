@@ -55,21 +55,70 @@ const CreateTask = () => {
 
   //Create Task
   const createTask = async () =>{
+    setLoading(true);
 
-  }
+    try{
+      const todolist = taskData.todoChecklist?.map((item)=>({
+        text:item,
+        completed:false,
+      }));
+
+      const response = await axiosInstance.post(API_PATHS.TASKS.CREATE_TASK,{
+        ...taskData,
+        dueData: new Date(taskData.dueDate).toISOString(),
+        todoChecklist:todolist,
+      });
+
+      toast.success("Task Created Successfully");
+
+      clearData();
+    } catch(error){
+      console.error("Error creating task:", error);
+      setLoading(false);
+    }finally{
+      seatLoading(false);
+    }
+  };
 
   //Update Task
   const updateTask = async()=>{}
 
-  const handleSubmit = async()=>{}
+  const handleSubmit = async()=>{
+    setError(null);
+
+    //Input Validation 
+    if(!taskData.title.trim()){
+      setError("Title is required.");
+      return;
+    }
+    if(!taskData.description.trim()){
+      setError("Description is required.");
+      return;
+    }
+    if(!taskData.dueDate){
+      setError("Due date is required.");
+      return;
+    }
+    if(taskData.assignedTo?.length === 0){
+      setError("Task not assigned to any member");
+      return;
+    }
+    if(taskData.todoChecklist?.length === 0){
+      setError("Add atleast one todo task");
+      return;
+    }
+    if(taskId){
+      updateTask();
+      return;
+    }
+    createTask();
+  };
 
   //get Task info by ID 
   const getTaskDetailsByID = async()=>{};
 
   //Delete Task
   const deleteTask = async()=>{};
-
-
 
   return (
     <DashboardLayout activeMenu="Create Task">
@@ -122,10 +171,10 @@ const CreateTask = () => {
               />
             </div>
 
-            <div className='grid geid-cols-12 gp-4 mt-2'>
-              <div className='col-span- md:col-span-4'>
+            <div className='grid grid-cols-12 gap-4 mt-2'>
+              <div className='col-span-6 md:col-span-4'>
                 <label className='text-xs font-medium text-slate-600'>
-                  Peiority
+                  Priority
                 </label>
 
                 <SelectDropdown
@@ -204,6 +253,20 @@ const CreateTask = () => {
                     handleValueChange("attachments",value)
                   }
                 />
+            </div>
+            
+            {error && (
+              <p className='text-xs font-medium text-red-500 mt-5'>{error}</p>
+            )}
+
+            <div className='flex justify-end mt-7'>
+              <button
+                className='add-btn'
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {taskId ? "UPDATE TASK" : "CREATE TASK"}
+              </button>
             </div>
           </div>
         </div>
