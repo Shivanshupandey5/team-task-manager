@@ -5,71 +5,81 @@ const Task = require("../models/Task");
 // @access Private
 const getTasks = async (req, res) => {
   try {
+
     const { status } = req.query;
 
-    // Status filter (optional)
+    // Task filtering
     let filter = {};
+
     if (status) {
       filter.status = status;
     }
 
-    // Role-based filter
+    // Role-based filtering
     const roleFilter =
-      req.user.role === "admin" ? {} : { assignedTo: req.user._id };
+      req.user.role === "admin"
+        ? {}
+        : { assignedTo: req.user._id };
 
     // Fetch tasks
-    let tasks = await Task.find({ ...filter, ...roleFilter }).populate(
+    let tasks = await Task.find({
+      ...filter,
+      ...roleFilter,
+    }).populate(
       "assignedTo",
       "name email profileImageUrl"
     );
 
     // Add completed checklist count
     tasks = tasks.map((task) => {
-      const completedCount = task.todoChecklist?.filter(
-        (item) => item.completed
-      ).length;
+
+      const completedCount =
+        task.todoChecklist?.filter(
+          (item) => item.completed
+        ).length || 0;
 
       return {
         ...task.toObject(),
-        completedTodoCount: completedCount || 0,
+        completedTodoCount: completedCount,
       };
     });
 
-    // Status summary
+    // GLOBAL status counts
+    // DO NOT apply current status filter here
+
     const allTasks = await Task.countDocuments({
-      ...filter,
       ...roleFilter,
     });
 
     const pendingTasks = await Task.countDocuments({
-      ...filter,
       ...roleFilter,
       status: "Pending",
     });
 
     const inProgressTasks = await Task.countDocuments({
-      ...filter,
       ...roleFilter,
       status: "In Progress",
     });
 
     const completedTasks = await Task.countDocuments({
-      ...filter,
       ...roleFilter,
       status: "Completed",
     });
 
-    // Final response
+    // Response
     res.json({
       tasks,
+
       statusSummary: {
         all: allTasks,
-        pending: pendingTasks,
-        inProgress: inProgressTasks,
-        completed: completedTasks,
+        pendingTasks,
+        inProgressTasks,
+        completedTasks,
       },
     });
+
   } catch (error) {
+
     res.status(500).json({
       message: "Server error",
       error: error.message,
