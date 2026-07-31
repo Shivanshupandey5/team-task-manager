@@ -20,8 +20,7 @@ app.use(
     })
 );
 
-// Connect to MongoDB
-connectDB();
+// MongoDB connection disabled until MONGO_URL is available
 
 // Middleware
 app.use(express.json());
