@@ -20,8 +20,10 @@ app.use(
     })
 );
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (non-blocking — server starts regardless of DB availability)
+connectDB().catch((err) => {
+    console.warn("Warning: MongoDB connection failed at startup:", err.message);
+});
 
 // Middleware
 app.use(express.json());
