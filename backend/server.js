@@ -21,7 +21,8 @@ app.use(
 );
 
 // Connect to MongoDB
-connectDB();
+// TODO: Uncomment once MONGO_URL environment variable is available
+// connectDB();
 
 // Middleware
 app.use(express.json());
